@@ -1,0 +1,3741 @@
+  <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#00695C">
+    <meta name="description" content="Aplicación de búsqueda para el Almacén 445">
+    
+    <title>Almacén 445 - Búsqueda de Códigos</title>
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="./icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="./icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./icons/icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="./icons/icon-167x167.png">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    
+    <!-- Estilos -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #00695C 0%, #00897B 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-weight: 300;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex-grow: 1;
+            max-width: 600px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 12px 15px;
+            padding-left: 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #searchInput:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 18px;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #00695C 0%, #00897B 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .clear-btn {
+            background: linear-gradient(135deg, #d32f2f 0%, #e53935 100%);
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #eee;
+        }
+
+        select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:hover {
+            border-color: #00897B;
+        }
+
+        .results-info {
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .table-container {
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+            margin: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background: linear-gradient(135deg, #00695C 0%, #00897B 100%);
+            color: white;
+            text-align: left;
+            padding: 12px 15px;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+            transition: background-color 0.3s ease;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-style: italic;
+            background-color: #fafafa;
+        }
+
+        .card-view {
+            display: none;
+            padding: 15px;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            background-color: #f8f9fa;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            width: 100%;
+            max-width: 300px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: #00695C;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .card-item {
+            display: flex;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .card-label {
+            font-weight: 600;
+            color: #555;
+            min-width: 100px;
+            margin-right: 10px;
+        }
+
+        .card-value {
+            color: #333;
+            flex-grow: 1;
+        }
+
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+
+        .view-btn {
+            padding: 8px 15px;
+            background-color: #e0e0e0;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn.active {
+            background: linear-gradient(135deg, #00695C 0%, #00897B 100%);
+            color: white;
+        }
+
+        .view-btn:first-child {
+            border-radius: 50px 0 0 50px;
+        }
+
+        .view-btn:last-child {
+            border-radius: 0 50px 50px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            color: #666;
+            font-size: 0.8rem;
+            background-color: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+
+        /* Install prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            display: none;
+            z-index: 1000;
+        }
+
+        .install-prompt p {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .install-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .install-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .install-later {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .install-now {
+            background: linear-gradient(135deg, #00695C 0%, #00897B 100%);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            header {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .search-container {
+                padding: 15px;
+                flex-direction: column;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            .filters {
+                padding: 15px;
+                flex-direction: column;
+            }
+
+            select, button {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .results-info {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+                font-size: 13px;
+            }
+
+            .view-toggle {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .view-btn {
+                border-radius: 50px !important;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Almacén 445</h1>
+            <p class="subtitle">Sistema de Búsqueda de Artículos y Códigos</p>
+        </header>
+
+        <div class="search-container">
+            <div class="search-box">
+                <i class="search-icon">🔍</i>
+                <input type="text" id="searchInput" placeholder="Buscar por código, artículo o grupo..." />
+            </div>
+            <button onclick="searchItems()">Buscar</button>
+            <button class="clear-btn" onclick="clearSearch()">Limpiar</button>
+        </div>
+
+        <div class="filters">
+            <select id="groupFilter" onchange="filterByGroup()">
+                <option value="">Todos los grupos</option>
+                <option value="EQUIPOS POR INSTALAR">EQUIPOS POR INSTALAR</option>
+                <option value="MATERIALES">MATERIALES</option>
+            </select>
+            <select id="sortOrder" onchange="sortTable()">
+                <option value="code-asc">Código A-Z</option>
+                <option value="code-desc">Código Z-A</option>
+                <option value="article-asc">Artículo A-Z</option>
+                <option value="article-desc">Artículo Z-A</option>
+                <option value="quantity-asc">Cantidad Menor a Mayor</option>
+                <option value="quantity-desc">Cantidad Mayor a Menor</option>
+            </select>
+        </div>
+
+        <div class="results-info">
+            <span id="resultsCount">0 resultados encontrados</span>
+            <button onclick="exportToCSV()" style="padding: 6px 12px; background: #4CAF50; border: none; color: white; border-radius: 4px; cursor: pointer; font-size: 12px;">Exportar CSV</button>
+        </div>
+
+        <div class="view-toggle">
+            <button class="view-btn active" id="tableViewBtn" onclick="switchView('table')">Vista Tabla</button>
+            <button class="view-btn" id="cardViewBtn" onclick="switchView('card')">Vista Tarjetas</button>
+        </div>
+
+        <div class="table-container" id="tableContainer">
+            <table id="itemsTable">
+                <thead>
+                    <tr>
+                        <th>Código Artículo</th>
+                        <th>Artículo</th>
+                        <th>Grupo</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Los datos se cargarán aquí -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-container card-view" id="cardView">
+            <!-- Las tarjetas se generarán aquí -->
+        </div>
+
+        <footer>
+            <p>Sistema de Gestión de Almacén 445 | Última actualización: 15/12/2025</p>
+        </footer>
+    </div>
+
+    <!-- Prompt de instalación -->
+    <div class="install-prompt" id="installPrompt">
+        <p>¿Quieres instalar la aplicación de Almacén 445 en tu dispositivo?</p>
+        <div class="install-buttons">
+            <button class="install-btn install-later" onclick="closeInstallPrompt()">Más tarde</button>
+            <button class="install-btn install-now" id="installButton">Instalar ahora</button>
+        </div>
+    </div>
+
+    <script>
+        // Datos del archivo Excel Almacén 445
+        const data = [
+            {
+                "Código Artículo": "0100000002",
+                "Artículo": "BOMBA SUMERGIBLE 11HP22-60HZ DNM G1",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0100000051",
+                "Artículo": "CUADRO ELÉCTRICO DE PROTECCIÓN Y CONTROL  ARMARIO DE ACERO P",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0100000052",
+                "Artículo": "BOMBA SUMERGIBLE DX100G 1HP 220-60HZ DNM G 1 1/2 CON CABLE H",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0100000063",
+                "Artículo": "PANEL INDICADOR DE PRESIÓN 3KG/CM2 CON PURGAS DE AIRE DE TEF",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0100000066",
+                "Artículo": "BOMBA SUMERGIBLE SEVISL V 9-30 RW CON AUTOCOUPLING",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0100000068",
+                "Artículo": "COMPRESOR SEMIHERMETICO T,MODELO M-CSH7563-60Y35P,MOTOR 60HP",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0100000069",
+                "Artículo": "COMPRESOR SEMIHERMETICO T,MODELO CSH8583125Y-35PV-380V/3/6O",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0100000070",
+                "Artículo": "EVAPORADOR TUBO DE CARAZA BITZER MODELO-DH2323X-CE,CAPACIDAD",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0100000071",
+                "Artículo": "EVAPORADOR MODELO DH25-502-CE CAP-733.5KW",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0100000074",
+                "Artículo": "REDUCCION CONICA PVC ENCOLAR 160.140X90",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0100000075",
+                "Artículo": "JUNTA PLANA EVA 90",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0100000079",
+                "Artículo": "MODULO REJILLA TRANSV. PARA CURVAS 245MM",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "4161"
+            },
+            {
+                "Código Artículo": "0100000115",
+                "Artículo": "BOMBA VICTORIA PLUSSILENT 1 CV II 60 HZ",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0100000119",
+                "Artículo": "GRUPO DE PRESIÓN COMPUESTO POR 2 BOMBAS DE ACERO ALIMENTADAS",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0100000127",
+                "Artículo": "CARRO ELÉCTRICO DOS ASIENTOS 24V",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0100000128",
+                "Artículo": "BOMBA DE AGUA JET HIERRO 1HP 220V Q46 L/MIN, H-MAX. 55M, FAS",
+                "Grupo": "EQUIPOS POR INSTALAR",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200000060",
+                "Artículo": "MANGUITO (DN200), B8080738.8 ITEM 63 BA1200B MANGUITO PORTA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000061",
+                "Artículo": "CODO PVC (90º DN200) ENCOLAR",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000062",
+                "Artículo": "MANGUITO PVC (DN200) ENCOLAR",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000063",
+                "Artículo": "ARANDELA (DIN125) PLANA ZINCADA DIN 125 MEDIDA M16 CD DEL P",
+                "Grupo": "MATERIALES",
+                "Cantidad": "16"
+            },
+            {
+                "Código Artículo": "0200000064",
+                "Artículo": "TORNILLO (DIN933) DE CABEZA HEXAGONAL ZINCADA DIN 933 TOTAL",
+                "Grupo": "MATERIALES",
+                "Cantidad": "16"
+            },
+            {
+                "Código Artículo": "0200000065",
+                "Artículo": "TUERCA HEXAGONAL ZINCADA DIN 934 MEDIDA M20COD DEL PROD TU",
+                "Grupo": "MATERIALES",
+                "Cantidad": "16"
+            },
+            {
+                "Código Artículo": "0200000092",
+                "Artículo": "LÁMPARA FOTOVOLTAICA CON PANEL SOLAR INTEGRADO Y ACCESORIOS,",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000093",
+                "Artículo": "TUBO LED  DE LUZ BLANCA, 10W, MULTIVOLTAJE 0.60M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "45"
+            },
+            {
+                "Código Artículo": "0200000094",
+                "Artículo": "MÓDULO ELECTRÓNICO SE-E1/",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000095",
+                "Artículo": "MANGUITO UNIÓN DOBLE DN 50",
+                "Grupo": "MATERIALES",
+                "Cantidad": "8"
+            },
+            {
+                "Código Artículo": "0200000100",
+                "Artículo": "PASTA DE JUNTA PR4 (SACO DE 25 KG) PQ BLOQ",
+                "Grupo": "MATERIALES",
+                "Cantidad": "32"
+            },
+            {
+                "Código Artículo": "0200000201",
+                "Artículo": "FLEX SÚPER C2STE2 (COMP A) SACOS DE 23 KG  APROX. (CEMENTO COLA)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "270"
+            },
+            {
+                "Código Artículo": "0200000205",
+                "Artículo": "WINGROUT 600 ROJO SACOS DE 23 KG APROX.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "90"
+            },
+            {
+                "Código Artículo": "0200000206",
+                "Artículo": "WINGROUT 600 VERDE SACO DE 23 KG APROX.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "100"
+            },
+            {
+                "Código Artículo": "0200000207",
+                "Artículo": "STUCCO FLEX BI (COMP A) SACO 23 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "63"
+            },
+            {
+                "Código Artículo": "0200000208",
+                "Artículo": "STUCCO FLEX BI (COMP A) SACOS DE20KG APROX.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "200"
+            },
+            {
+                "Código Artículo": "0200000213",
+                "Artículo": "REPARWIN TIX HG (COMP A) SACOS DE 23 KG APROX.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "567"
+            },
+            {
+                "Código Artículo": "0200000216",
+                "Artículo": "WINPLAC SÚPER SACOS DE 15 KG APROX.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "40"
+            },
+            {
+                "Código Artículo": "0200000217",
+                "Artículo": "WINSILEX NO-RUST BIDONES DE 5 KG APROX.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "115"
+            },
+            {
+                "Código Artículo": "0200000218",
+                "Artículo": "REPARWIN TIX HG (COMP B) BIDONES DE 5 APROX",
+                "Grupo": "MATERIALES",
+                "Cantidad": "269"
+            },
+            {
+                "Código Artículo": "0200000222",
+                "Artículo": "FLEX SUPER C2TES2 GRIS COMPONENTE B",
+                "Grupo": "MATERIALES",
+                "Cantidad": "50"
+            },
+            {
+                "Código Artículo": "0200000224",
+                "Artículo": "FLEX SÚPER C2STE2 (COMP B) BIDONES DE 5 KG APROX.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "249"
+            },
+            {
+                "Código Artículo": "0200000226",
+                "Artículo": "WINPLAC SUPER MULTIUSO CUBETAS 20 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "19"
+            },
+            {
+                "Código Artículo": "0200000228",
+                "Artículo": "WINFLEX CEMENT FIBER PLUS (COMP A) SACO DE 23 KG APROX",
+                "Grupo": "MATERIALES",
+                "Cantidad": "9"
+            },
+            {
+                "Código Artículo": "0200000229",
+                "Artículo": "TOP 21 GRIS CUBETAS DE 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200000230",
+                "Artículo": "TOP PLUS ROJO TANQUETA DE 23.5 KG APROX",
+                "Grupo": "MATERIALES",
+                "Cantidad": "27"
+            },
+            {
+                "Código Artículo": "0200000231",
+                "Artículo": "TOP PLUS ROJO CUBETAS 25 KG.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "109"
+            },
+            {
+                "Código Artículo": "0200000232",
+                "Artículo": "TOP PLUS VERDE CUBETAS 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200000233",
+                "Artículo": "ARMAWIN TNT PP ROLLOS DE 50 M2",
+                "Grupo": "MATERIALES",
+                "Cantidad": "36"
+            },
+            {
+                "Código Artículo": "0200000234",
+                "Artículo": "ARMAWIN TNT 35 FV ROLLO DE 50M2",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200000236",
+                "Artículo": "ADHEWIN LATEX MAXI BIDONES DE 5 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "180"
+            },
+            {
+                "Código Artículo": "0200000238",
+                "Artículo": "STUCCO FLEX FINO (COMP B) BIDONES DE 5 KG APROX.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "263"
+            },
+            {
+                "Código Artículo": "0200000241",
+                "Artículo": "WINSILEX ANTISALINO BIDONES DE 5 KG APROX.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "60"
+            },
+            {
+                "Código Artículo": "0200000251",
+                "Artículo": "TOP SEÑALIZACIÓN CUBETAS DE 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "40"
+            },
+            {
+                "Código Artículo": "0200000252",
+                "Artículo": "TOP 81 BARNIZ ENVASES DE 4 LT",
+                "Grupo": "MATERIALES",
+                "Cantidad": "608"
+            },
+            {
+                "Código Artículo": "0200000253",
+                "Artículo": "TOP 61 ESMALTE AZUL CUBETA 4 LT",
+                "Grupo": "MATERIALES",
+                "Cantidad": "124"
+            },
+            {
+                "Código Artículo": "0200000254",
+                "Artículo": "TOP 61 AZUL ENVASES DE 4 LT",
+                "Grupo": "MATERIALES",
+                "Cantidad": "66"
+            },
+            {
+                "Código Artículo": "0200000255",
+                "Artículo": "TOP 61 CAOBA ENVASES DE 4 LT",
+                "Grupo": "MATERIALES",
+                "Cantidad": "184"
+            },
+            {
+                "Código Artículo": "0200000256",
+                "Artículo": "TOP 61 ESMALTE CAOBA CUBETA 4 LT",
+                "Grupo": "MATERIALES",
+                "Cantidad": "46"
+            },
+            {
+                "Código Artículo": "0200000257",
+                "Artículo": "TOP 61 BLANCO ENVASES DE 4 LT.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "38"
+            },
+            {
+                "Código Artículo": "0200000258",
+                "Artículo": "TOP 31 MARFIL (RAL 1013) CUBETAS 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "148"
+            },
+            {
+                "Código Artículo": "0200000259",
+                "Artículo": "TOP 31 MARFIL (RAL 1015) CUBETAS 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "40"
+            },
+            {
+                "Código Artículo": "0200000260",
+                "Artículo": "TOP 31 VERDE (RAL 6026) CUBETAS 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "27"
+            },
+            {
+                "Código Artículo": "0200000261",
+                "Artículo": "TOP 31 VERDE OSCURO (RAL 6027) CUBETAS 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000262",
+                "Artículo": "TOP 31 GRIS PIEDRA (RAL 7030) CUBETAS 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000263",
+                "Artículo": "TOP 31 GRIS CLARO (RAL 7047 CUBETAS 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "46"
+            },
+            {
+                "Código Artículo": "0200000264",
+                "Artículo": "TOP 31 MARRÓN COBRE (RAL 8004) CUBETAS 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "13"
+            },
+            {
+                "Código Artículo": "0200000265",
+                "Artículo": "TOP 31 BLANCO TRÁFICO (RAL 9003) CUBETAS 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "29"
+            },
+            {
+                "Código Artículo": "0200000266",
+                "Artículo": "TOP 31 NEGRO  (RAL 9005) TANQUETA DE 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200000267",
+                "Artículo": "TOP 31 CREMA CLARO (RAL 9016) TANQUETA DE 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "22"
+            },
+            {
+                "Código Artículo": "0200000268",
+                "Artículo": "TOP 31 (RAL 9001) TANQUETAS DE 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "18"
+            },
+            {
+                "Código Artículo": "0200000269",
+                "Artículo": "TOP 31 (RAL 7045) GRIS TANQUETAS DE 25 KG ",
+                "Grupo": "MATERIALES",
+                "Cantidad": "69"
+            },
+            {
+                "Código Artículo": "0200000270",
+                "Artículo": "TOP 31 MARRÓN (RAL 8004) CUBETAS 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "16"
+            },
+            {
+                "Código Artículo": "0200000271",
+                "Artículo": "DISOLVENTE TANQUETAS DE 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "35"
+            },
+            {
+                "Código Artículo": "0200000281",
+                "Artículo": "ESPÁTULA INOX.GOMA/PLÁSTICA (80 MM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "46"
+            },
+            {
+                "Código Artículo": "0200000282",
+                "Artículo": "ESPÁTULA INOX. GOMA PLÁSTICA (40 MM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "92"
+            },
+            {
+                "Código Artículo": "0200000283",
+                "Artículo": "ALARGO TELESCOPIO ALUMINIO (3M)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200000284",
+                "Artículo": "BROCHA REDONDA AMARILLA N.10",
+                "Grupo": "MATERIALES",
+                "Cantidad": "16"
+            },
+            {
+                "Código Artículo": "0200000285",
+                "Artículo": "RECAMBIO DE PIEL MELOCOTÓN (6 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "90"
+            },
+            {
+                "Código Artículo": "0200000286",
+                "Artículo": "ESPONJA PLANA GRANO FINO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200000287",
+                "Artículo": "RECAMBIO SÚPER LISA (11 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200000288",
+                "Artículo": "ESPONJA PLANA GRANO MEDIO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200000289",
+                "Artículo": "BANDEJA PLANA (22 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "34"
+            },
+            {
+                "Código Artículo": "0200000290",
+                "Artículo": "HARAGÁN METÁLICO PROFESIONAL (45 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200000291",
+                "Artículo": "RECAMBIO VELUR (6CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200000292",
+                "Artículo": "ALARGO METÁLICO CON CONO (2 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000293",
+                "Artículo": "RECAMBIO VELUR (15 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "25"
+            },
+            {
+                "Código Artículo": "0200000294",
+                "Artículo": "MASCARILLAS STANDARD",
+                "Grupo": "MATERIALES",
+                "Cantidad": "71"
+            },
+            {
+                "Código Artículo": "0200000295",
+                "Artículo": "RECAMBIO DE PIEL MELOCOTÓN (11 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "90"
+            },
+            {
+                "Código Artículo": "0200000296",
+                "Artículo": "GAFAS PROTECTORAS ANTIVAHO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "22"
+            },
+            {
+                "Código Artículo": "0200000297",
+                "Artículo": "RECAMBIO ESPUMA  (11 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "116"
+            },
+            {
+                "Código Artículo": "0200000298",
+                "Artículo": "GAFAS PROTECTORAS ANTIVAHO CON GOMA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "17"
+            },
+            {
+                "Código Artículo": "0200000299",
+                "Artículo": "VARILLA CORTA MINIRODILLO (5 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200000300",
+                "Artículo": "CEPILLO DE PÚA METÁLICA MULTIUSO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "7"
+            },
+            {
+                "Código Artículo": "0200000301",
+                "Artículo": "RECAMBIO ESPUMA (6 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "156"
+            },
+            {
+                "Código Artículo": "0200000302",
+                "Artículo": "RECAMBIO SÚPER LISA (15 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "32"
+            },
+            {
+                "Código Artículo": "0200000303",
+                "Artículo": "RECAMBIO VELUR (11 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "31"
+            },
+            {
+                "Código Artículo": "0200000304",
+                "Artículo": "ALARGO TELESCOPIO ALUMINIO (2M)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "23"
+            },
+            {
+                "Código Artículo": "0200000305",
+                "Artículo": "VARILLA CORTA MINIRODILLO (10 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "57"
+            },
+            {
+                "Código Artículo": "0200000306",
+                "Artículo": "RECAMBIO SÚPER LISA (6 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200000307",
+                "Artículo": "BANDEJA PLANA (11 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "85"
+            },
+            {
+                "Código Artículo": "0200000308",
+                "Artículo": "PALETINA AMARILLA (2´´/50 MM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "97"
+            },
+            {
+                "Código Artículo": "0200000309",
+                "Artículo": "PALETINA AMARILLA (3´´/75 MM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "119"
+            },
+            {
+                "Código Artículo": "0200000310",
+                "Artículo": "PALETINA AMARILLA (4´´/100 MM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200000311",
+                "Artículo": "VARILLA MANGO O BIMATERIAL 22 CM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "49"
+            },
+            {
+                "Código Artículo": "0200000312",
+                "Artículo": "RECAMBIO RODILLO FACHADAS (DIÁM.50 22 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "118"
+            },
+            {
+                "Código Artículo": "0200000313",
+                "Artículo": "RECAMBIO RODILLO ANTIGOTA (DIÁM.50 22 CM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "27"
+            },
+            {
+                "Código Artículo": "0200000314",
+                "Artículo": "LLANA ACERO (300 X 150)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "9"
+            },
+            {
+                "Código Artículo": "0200000315",
+                "Artículo": "ESPÁTULA INOX.GOMA/PLÁSTICA (100 MM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "112"
+            },
+            {
+                "Código Artículo": "0200000318",
+                "Artículo": "JABONERA LAVABO HOTELS CROMO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "9"
+            },
+            {
+                "Código Artículo": "0200000319",
+                "Artículo": "PORTARROLLOS RECAMBIO HOTELS CROMO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200000320",
+                "Artículo": "PERCHA 2BLE HOTELS CROMO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200000327",
+                "Artículo": "VÁLVULA DE MARIPOSA WAFER 160MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000328",
+                "Artículo": "VÁLVULA DE MARIPOSA WAFER 110MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200000332",
+                "Artículo": "JUNTA ACÚSTICA AUTOADHESIVO ANCHO 100 MM ROLLO 30 ML 4823 10",
+                "Grupo": "MATERIALES",
+                "Cantidad": "270"
+            },
+            {
+                "Código Artículo": "0200000341",
+                "Artículo": "PTA ACERO GALVANIZADO LACADO EN BLANCO 800 X 2100 IZQ",
+                "Grupo": "MATERIALES",
+                "Cantidad": "14"
+            },
+            {
+                "Código Artículo": "0200000342",
+                "Artículo": "PTA ACERO GALVANIZADO LACADO EN BLANCO 800 X 2100 DER",
+                "Grupo": "MATERIALES",
+                "Cantidad": "14"
+            },
+            {
+                "Código Artículo": "0200000343",
+                "Artículo": "PTA ACERO GALVANIZADO LACADO EN BLANCO 900 X 2100 IZQ",
+                "Grupo": "MATERIALES",
+                "Cantidad": "7"
+            },
+            {
+                "Código Artículo": "0200000344",
+                "Artículo": "PTA ACERO GALVANIZADO LACADO EN BLANCO 900 X 2100 DER",
+                "Grupo": "MATERIALES",
+                "Cantidad": "7"
+            },
+            {
+                "Código Artículo": "0200000345",
+                "Artículo": "TUBERÍA PN 16 DE 20 PVC HID PRESIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1150"
+            },
+            {
+                "Código Artículo": "0200000346",
+                "Artículo": "TUBO PN 10 DN 200 C/BOCINA L-508",
+                "Grupo": "MATERIALES",
+                "Cantidad": "18"
+            },
+            {
+                "Código Artículo": "0200000348",
+                "Artículo": "TEE PVC PRESIÓN 200MM 90",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200000357",
+                "Artículo": "VÁLVULA SELECTORA 3´´ MAGNUM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200000358",
+                "Artículo": "KIT DE VÁLVULAS DE SEGURIDAD PARA INSTALAR EN DOSICLOR DE 60",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200000360",
+                "Artículo": "DOSIFICADOR DE PASTILLAS COMPACTO SERIE DOSICLOR COD. 02247",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200000361",
+                "Artículo": "MANGUITO ELÁSTICO SIMPLE ONDA 2  1/2´´",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200000362",
+                "Artículo": "MANGUITO ELÁSTICO SIMPLE ONDA 2´´",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200000416",
+                "Artículo": "LIMPIADOR PVC, BOTE 1LT",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200000417",
+                "Artículo": "LECHO FILTRANTE VITREO 1-2 MM (SACOS 25 KG)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "5500"
+            },
+            {
+                "Código Artículo": "0200000418",
+                "Artículo": "LECHO FILTRANTE VITREO 3-7 MM (SACOS 25 KG)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1050"
+            },
+            {
+                "Código Artículo": "0200000419",
+                "Artículo": "LECHO FILTRANTE VITREO 0.5-1 MM (SACOS 25 KG)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2500"
+            },
+            {
+                "Código Artículo": "0200000422",
+                "Artículo": "ESMALTE SINTÉTICO NEGRO. FORMATO ENVASE DE 1 GALÓN= 4 LITROS",
+                "Grupo": "MATERIALES",
+                "Cantidad": "5"
+            },
+            {
+                "Código Artículo": "0200000432",
+                "Artículo": "ROLLOS 1/2 X 12M CINTA SELLANTE NO AUTOADHESIVA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2312"
+            },
+            {
+                "Código Artículo": "0200000437",
+                "Artículo": "ESTACIÓN DE CARGA PARA 6 BATERÍAS Y 20 BATERÍAS 12V Y 80 AMP",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200000438",
+                "Artículo": "ESTACIÓN DE CARGA PARA 6 BATERÍAS Y 20 BATERÍAS 24V 80 AMP.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200000442",
+                "Artículo": "BRADA NYLON POLIAMIDA 3.6X200 NEGRA (DOLSAS DE 100 BRIDAS)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "31"
+            },
+            {
+                "Código Artículo": "0200000443",
+                "Artículo": "TACO DE NYLON 4 SEGMENTO TN45 5X25 DIAMETRO 5 (CJA100U)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200000457",
+                "Artículo": "ML GUÍA 48 EO.28 EXP/ L=3M (U=M) (P2-106)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "70"
+            },
+            {
+                "Código Artículo": "0200000458",
+                "Artículo": "ML MONT 100 EQ.60 EXP / L=3M (U=M) (P2-108)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "105"
+            },
+            {
+                "Código Artículo": "0200000473",
+                "Artículo": "TORNILLO C/TROMPETA 3.5 X 45 P/UNIR PLACAB YESO C/METAL H 0.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "186"
+            },
+            {
+                "Código Artículo": "0200000474",
+                "Artículo": "VÁLVULA DE GLOBO 1/2 PULG. PN16. PASO TOTAL CUERPO EN ACERO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "23"
+            },
+            {
+                "Código Artículo": "0200000475",
+                "Artículo": "VÁLVULA DE GLOBO 3/4 PULG. PN16 PASO TOTAL CUERPO EN ACERO I",
+                "Grupo": "MATERIALES",
+                "Cantidad": "75"
+            },
+            {
+                "Código Artículo": "0200000476",
+                "Artículo": "VALVULA COM PUERTA CIERRE EPDM C/NODULAR PN 16 3 PULG.(2102",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200000477",
+                "Artículo": "VÁLVULA DE ESFERA 1 1/4 PULG. PN25 PASO TOTAL ( VESL 32 N)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "19"
+            },
+            {
+                "Código Artículo": "0200000478",
+                "Artículo": "VÁLVULA DE ESFERA MINI 3/4 PULG. PN16 PASO REDUCIDO (VESM 20",
+                "Grupo": "MATERIALES",
+                "Cantidad": "19"
+            },
+            {
+                "Código Artículo": "0200000479",
+                "Artículo": "VÁLVULA DE COMPUERTA LIGERA 2 PULG. CUERPO Y COMPUERTA  EN L",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200000480",
+                "Artículo": "VÁLVULA DE RETENCIÓN UNIVERSAL 1 PULG. CUERPO EN LATÓN (VRUN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "123"
+            },
+            {
+                "Código Artículo": "0200000481",
+                "Artículo": "VÁLVULA DE RETENCIÓN DE CLAPETA 4 PG CUERPO EN LATÓN  (VRCL",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200000482",
+                "Artículo": "89 CINTA TEFÓN PTFE 50 X 0.1 X 19 MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "50"
+            },
+            {
+                "Código Artículo": "0200000488",
+                "Artículo": "CAUTIN TIPO PISTOLA MULTIVOLTAJE, 140W, CON 2 TEMPERATURAS",
+                "Grupo": "MATERIALES",
+                "Cantidad": "20"
+            },
+            {
+                "Código Artículo": "0200000490",
+                "Artículo": "SECADOR DE CABELLOS DE ABS BLANCO, ADOSADO A LA PARED , F:50",
+                "Grupo": "MATERIALES",
+                "Cantidad": "149"
+            },
+            {
+                "Código Artículo": "0200000496",
+                "Artículo": "TUBERÍA ELÉCTRICA C/BOCIMA 40MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "18"
+            },
+            {
+                "Código Artículo": "0200000497",
+                "Artículo": "TUBERÍA PVC SANIT 2´´ (1 TIRA=6 METROS)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "33"
+            },
+            {
+                "Código Artículo": "0200000498",
+                "Artículo": "TEE SANITARIA PVC 50MM ASTM 2 PG.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200000499",
+                "Artículo": "TUBO SAN 4´´ RDE 21 6M(2900331)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "68"
+            },
+            {
+                "Código Artículo": "0200000514",
+                "Artículo": "PORTABRIDA PVC 200MM PN 10",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200000536",
+                "Artículo": "TOMACORRIENTE DOB. EUROAMERIC. 10-15AH/125-250V",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200000538",
+                "Artículo": "DETECTOR DE HUMO OPTICO DIRECCINABLE",
+                "Grupo": "MATERIALES",
+                "Cantidad": "110"
+            },
+            {
+                "Código Artículo": "0200000539",
+                "Artículo": "DETECTOR DE TEMPERATURATERMOVELOCIMETRICO CONVENCIONAL",
+                "Grupo": "MATERIALES",
+                "Cantidad": "30"
+            },
+            {
+                "Código Artículo": "0200000540",
+                "Artículo": "DETECTOR DE TEMPERATURA FIJA DIRECCIONABLE",
+                "Grupo": "MATERIALES",
+                "Cantidad": "30"
+            },
+            {
+                "Código Artículo": "0200000710",
+                "Artículo": "CEMENT BOARD PERMABASE 2800 X 1220 X 12.7 MM (P2-35)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "125.77"
+            },
+            {
+                "Código Artículo": "0200000712",
+                "Artículo": "TUBERÍA CORRUGADA FLEXIBLE 25 MM RECISTENCIA 320 N (ECTP1225",
+                "Grupo": "MATERIALES",
+                "Cantidad": "50"
+            },
+            {
+                "Código Artículo": "0200000725",
+                "Artículo": "ARENA DE SÍLICE LAVADO 0.1.0.6MM 25 KG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "29"
+            },
+            {
+                "Código Artículo": "0200000739",
+                "Artículo": "REVESTIMIENTO SERIE:BEST ULTRA WHITE 25X60",
+                "Grupo": "MATERIALES",
+                "Cantidad": "712.8"
+            },
+            {
+                "Código Artículo": "0200000740",
+                "Artículo": "REVESTIMIENTO COLOR BLANCO BRILLO 20 X 20 CM.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "211.2"
+            },
+            {
+                "Código Artículo": "0200000741",
+                "Artículo": "REVESTIMIENTO COLOR BLANCO , BRILLO20X20 CM ADSORCION DE HUM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "460.8"
+            },
+            {
+                "Código Artículo": "0200000744",
+                "Artículo": "PAVIMENTO PORC.NEW PAVE COLOR GRIS 30X60 CAJA 1.45 M2L",
+                "Grupo": "MATERIALES",
+                "Cantidad": "185.6"
+            },
+            {
+                "Código Artículo": "0200000745",
+                "Artículo": "PAVIMENTO PORC.WALK COLOR IVORY 30X60 CAJA 1.45 M2",
+                "Grupo": "MATERIALES",
+                "Cantidad": "31"
+            },
+            {
+                "Código Artículo": "0200000746",
+                "Artículo": "PAVIMENTO PORC. TRUST COLOR BEIGE 60X60 CAJA 1.44 M2",
+                "Grupo": "MATERIALES",
+                "Cantidad": "691.2"
+            },
+            {
+                "Código Artículo": "0200000747",
+                "Artículo": "PAVIMENTO PORC.TRUST,COLOR GREEYFORMATO60X60/CANT.CAJA1.44M2",
+                "Grupo": "MATERIALES",
+                "Cantidad": "276.48"
+            },
+            {
+                "Código Artículo": "0200000749",
+                "Artículo": "CUBIERTA LIGERA EN POLIMGLASS MODELO IMACOPPO, 5579 X 1104 C",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200000750",
+                "Artículo": " FRONTALINO EN POLIMGLASS PARA LATERALES, DIM 200X135X2400MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "72"
+            },
+            {
+                "Código Artículo": "0200000751",
+                "Artículo": "ELEMENTOS DE FIJACION PARA TEJA  MODELO CRIOLLA CON TAPA Y A",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1142"
+            },
+            {
+                "Código Artículo": "0200000752",
+                "Artículo": "CUBRERA POLIVALENTE EN POLIMGLASS L/2.280M COLOR TERRA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "157"
+            },
+            {
+                "Código Artículo": "0200000753",
+                "Artículo": "VERTEAGUA POLIVALENTE EN POLIMGLASS C/PARED DE 2.160MC",
+                "Grupo": "MATERIALES",
+                "Cantidad": "120"
+            },
+            {
+                "Código Artículo": "0200000754",
+                "Artículo": "CENEFA LISA EN POLIMGLASS (FLASHING LATERAL)30000X210X320",
+                "Grupo": "MATERIALES",
+                "Cantidad": "15"
+            },
+            {
+                "Código Artículo": "0200000765",
+                "Artículo": "INODORO DE CERÁMICA BLANCO CON TANQUE BAJO, DESCARGA A PISO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000766",
+                "Artículo": "INODORO DE CERAMICA BLANCO CON TANQUE BAJO DESCARGA ABAJO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "97"
+            },
+            {
+                "Código Artículo": "0200000769",
+                "Artículo": "TOALLERO ANILLA 210MM CROMADO BRILLANTE ATORNILLAR CON FIJAD",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200000775",
+                "Artículo": "LAVAMANOS SOBRE ENCIMERA OVALADO 600 X 370 X 190 MM DE PORCE",
+                "Grupo": "MATERIALES",
+                "Cantidad": "50"
+            },
+            {
+                "Código Artículo": "0200000797",
+                "Artículo": "GRIFO ESFERA ROSCA MANGUERA CON RACOR",
+                "Grupo": "MATERIALES",
+                "Cantidad": "31"
+            },
+            {
+                "Código Artículo": "0200000799",
+                "Artículo": "MONOMANDO DN 1/2 HANS P/LAVABO  LATÓN CROMADO  +/-27 MICRAS",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200000800",
+                "Artículo": "MONOMANDO DN P/DUCHA -BAÑERA HANS LATÓN CROMADO +/-27 MICRAS",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000801",
+                "Artículo": "LLAVE DE ÁNGULO CROMADA +/-27 MICRAS DE RECUBRIMIENTO DE 1/2",
+                "Grupo": "MATERIALES",
+                "Cantidad": "11"
+            },
+            {
+                "Código Artículo": "0200000805",
+                "Artículo": "LLAVE SENCILLA FREGADERO A PARED 1/2´´CUERPO DE LATÓN MANIJA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200000808",
+                "Artículo": "SIFA RUM PP ESTABILIZADO DN 110 MH",
+                "Grupo": "MATERIALES",
+                "Cantidad": "101"
+            },
+            {
+                "Código Artículo": "0200000809",
+                "Artículo": "SIFA RUM PP ESTABILIZADO DN 50 MH",
+                "Grupo": "MATERIALES",
+                "Cantidad": "19"
+            },
+            {
+                "Código Artículo": "0200000830",
+                "Artículo": "SOPORTE ISOFONICO 2 C/ESPARRAGO Y EXPANSION DE ZINC",
+                "Grupo": "MATERIALES",
+                "Cantidad": "395"
+            },
+            {
+                "Código Artículo": "0200000835",
+                "Artículo": "TOALLERO DE BARRA DE LATÓN CROMADO DE ADOSAR, INCLUYE FIJACI",
+                "Grupo": "MATERIALES",
+                "Cantidad": "27"
+            },
+            {
+                "Código Artículo": "0200000837",
+                "Artículo": "TOALLERO DOBLE CROMADO BRILLANTE ATORNILLAR CON FIJACIONES",
+                "Grupo": "MATERIALES",
+                "Cantidad": "15"
+            },
+            {
+                "Código Artículo": "0200000839",
+                "Artículo": "REPISA PORTATOHALLAS DE DOS PLANOS Y COLGADERA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "5"
+            },
+            {
+                "Código Artículo": "0200000845",
+                "Artículo": "TOHALLERO DE ARGOLLA DE  LATON CROMADO +/- 27",
+                "Grupo": "MATERIALES",
+                "Cantidad": "18"
+            },
+            {
+                "Código Artículo": "0200000846",
+                "Artículo": "ASA DE BANO ANGULAR CON JABONERA DE REJILLA ACERO INOX. A151",
+                "Grupo": "MATERIALES",
+                "Cantidad": "24"
+            },
+            {
+                "Código Artículo": "0200000847",
+                "Artículo": "VÁLVULA DESCARGA 1 1/4 PULGADA PVC P/LAVAMANOS C/DESCARGA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "5"
+            },
+            {
+                "Código Artículo": "0200000848",
+                "Artículo": "LATIGUILLO TRENZADO DE SS1/2´´X 50 CM DE ACERO INOXIDABLE",
+                "Grupo": "MATERIALES",
+                "Cantidad": "24"
+            },
+            {
+                "Código Artículo": "0200000849",
+                "Artículo": "JABONERA LAVABO DE PARED CROMADO BRILLANTE ATRONILLAR CON FI",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000850",
+                "Artículo": "TOALLERO DE BARRA DE LATÓN CROMADO  DE ADOSAR , INCLUYE FIJA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "70"
+            },
+            {
+                "Código Artículo": "0200000855",
+                "Artículo": "MANILLON DE SEGURIDAD LATON CROMADO +/-27",
+                "Grupo": "MATERIALES",
+                "Cantidad": "14"
+            },
+            {
+                "Código Artículo": "0200000857",
+                "Artículo": "PORTARROLLOS AUXILIAR SIN TAPA, DE LATÓN CROMADO DE ADOSAR,",
+                "Grupo": "MATERIALES",
+                "Cantidad": "147"
+            },
+            {
+                "Código Artículo": "0200000858",
+                "Artículo": "ASIENTO Y TAPA QUADRARCO OVALADO BLANCO EN ABS CON BISAGRAS",
+                "Grupo": "MATERIALES",
+                "Cantidad": "81"
+            },
+            {
+                "Código Artículo": "0200000859",
+                "Artículo": "PORTAROLLOS CON TAPA DE LATON CROMADO +/-27 MICRAS",
+                "Grupo": "MATERIALES",
+                "Cantidad": "25"
+            },
+            {
+                "Código Artículo": "0200000862",
+                "Artículo": "KIT ENTRADA Y SALIDA DE INODORO ALIMENTACION ALTA O BAJA CON",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000866",
+                "Artículo": "MECANISMO DE ALIMENTACIÓN INFERIOR EN ABS CON ROSCA*",
+                "Grupo": "MATERIALES",
+                "Cantidad": "14"
+            },
+            {
+                "Código Artículo": "0200000867",
+                "Artículo": "MECANISMO DE ALIMENTACIÓN INFERIOR EN ABS CON ROSCA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "150"
+            },
+            {
+                "Código Artículo": "0200000873",
+                "Artículo": "GANCHO PARA ROPA PLANO LATÓN CROMADO +/-27 MICRAS DE RECUBRI",
+                "Grupo": "MATERIALES",
+                "Cantidad": "153"
+            },
+            {
+                "Código Artículo": "0200000875",
+                "Artículo": "TEE 90 PP ESTABILIZADO DN 50 HHM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "55"
+            },
+            {
+                "Código Artículo": "0200000876",
+                "Artículo": "YEE 45 PP ESTABILIZADO DN 50 HHM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "407"
+            },
+            {
+                "Código Artículo": "0200000879",
+                "Artículo": "CODO 90 PP ESTABILIZADO DN 50 HM*",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1178"
+            },
+            {
+                "Código Artículo": "0200000880",
+                "Artículo": "CODO 45 PP ESTABILIZADO  DN 50 HHM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1638"
+            },
+            {
+                "Código Artículo": "0200000893",
+                "Artículo": "CASQUILLO DE GOMA DN 46MM X 1 1/4´´",
+                "Grupo": "MATERIALES",
+                "Cantidad": "250"
+            },
+            {
+                "Código Artículo": "0200000898",
+                "Artículo": "TAPÓN DE CIERRE DE POLIPROPILENO ESTABILIZADO DN 50",
+                "Grupo": "MATERIALES",
+                "Cantidad": "230"
+            },
+            {
+                "Código Artículo": "0200000900",
+                "Artículo": "YEE REDUCIDA POLIPROPILENO ESTABILIZADO 45 (110 X 50 HHM)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "80"
+            },
+            {
+                "Código Artículo": "0200000901",
+                "Artículo": "EMPALME EXCÉNTRICO DN 110 MH PP EST",
+                "Grupo": "MATERIALES",
+                "Cantidad": "99"
+            },
+            {
+                "Código Artículo": "0200000903",
+                "Artículo": "YEE 45º DE POLIPROPILENO EST. DN 110 MM HHM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "386"
+            },
+            {
+                "Código Artículo": "0200000926",
+                "Artículo": "TAPON DE CIERRE DE POLIPROPILENO ESTABILIZADO DN 110",
+                "Grupo": "MATERIALES",
+                "Cantidad": "26"
+            },
+            {
+                "Código Artículo": "0200000929",
+                "Artículo": "TUBO DE PILPROPILENO CON 1 BOCINA L-1000 MM DN 110MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2507"
+            },
+            {
+                "Código Artículo": "0200000930",
+                "Artículo": "TUBO DE POLIPROPILENO CON UNA BOCINA L-1000 MM DN 50MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3159"
+            },
+            {
+                "Código Artículo": "0200000934",
+                "Artículo": "TRAGANTE PISO DN 40/50 REJILLA DN 100 PEAD",
+                "Grupo": "MATERIALES",
+                "Cantidad": "130"
+            },
+            {
+                "Código Artículo": "0200000935",
+                "Artículo": "REJILLA TRAGANTE ACERO INOXIDABLE PISO 150 R/6. 150MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "286"
+            },
+            {
+                "Código Artículo": "0200000943",
+                "Artículo": "CASQUILLO REDUCCIÓN PVC ENCOLAR 110X90, PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200000944",
+                "Artículo": "CASQUILLO REDUCCIÓN PVC ENCOLAR 125X110 PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200000951",
+                "Artículo": "CASQUILLO REDUCCIÓN PVC ENCOLAR 90 X 75, PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200000952",
+                "Artículo": "CODO 45º PVC ENCOLAR 75 PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200000953",
+                "Artículo": "CODO 45 GRADO PVC ENCOLAR 90, PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "9"
+            },
+            {
+                "Código Artículo": "0200000955",
+                "Artículo": "MANGUITO PORTABRIDAS PVC ENCOLAR 90, PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200000956",
+                "Artículo": "MANGUITO UNIÓN MIXTO PVC ENCOLAR Y ROSCAR 63 X 2´´",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200000958",
+                "Artículo": "MANGUITO UNIÓN PVC ENCOLAR 140, PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000959",
+                "Artículo": "MANGUITO UNON PVC ENCOLAR 25, PN 16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200000960",
+                "Artículo": "MANGUITO UNIÓN PVC ENCOLAR 50",
+                "Grupo": "MATERIALES",
+                "Cantidad": "7"
+            },
+            {
+                "Código Artículo": "0200000961",
+                "Artículo": "MANGUITO UNIÓNPVC ENCOLAR 63, PN16*",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200000963",
+                "Artículo": "MANGUITO UNIÓNPVC ENCOLAR 90, PN16*",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200000965",
+                "Artículo": "REDUCCIÓN CÓNICA PVC ENCOLAR 125-110X 90, PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "8"
+            },
+            {
+                "Código Artículo": "0200000969",
+                "Artículo": "TE 90º GRADO PVC ENCOLAR 50, PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200000971",
+                "Artículo": "TE 90º PVC ENCOLAR 90, PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200000973",
+                "Artículo": "CODO 90 PVC ENCOLAR 125, PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200001009",
+                "Artículo": "CODO 45 PP ESTABILIZADO DN 110 HM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1429"
+            },
+            {
+                "Código Artículo": "0200001011",
+                "Artículo": "CODO 90 PP ESTABILIZADO DN 110 HM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "154"
+            },
+            {
+                "Código Artículo": "0200001031",
+                "Artículo": "VÁLVULA ESFERA DN 4  LATÓN CROMADA.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200001035",
+                "Artículo": "CODO 90ºPVC ENCOLAR 32, PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200001036",
+                "Artículo": "CODO 90º PVC ENCOLAR 75, PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200001038",
+                "Artículo": "CODO 90º PVC ENCOLAR 50 PN 16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200001039",
+                "Artículo": "CODO 90 GRADO PVC ENCOLAR 90, PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200001041",
+                "Artículo": "TEE REDUCIDA 110 X 63 X 110 PPR FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "35"
+            },
+            {
+                "Código Artículo": "0200001042",
+                "Artículo": "TEE RED 90 X 63 X 90 PPR FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "35"
+            },
+            {
+                "Código Artículo": "0200001047",
+                "Artículo": "COLLARIN TOMA SIMLE 160- 1 PULG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200001049",
+                "Artículo": "ENLACE 3 PIEZAS PVC ENCOLAR 32 PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200001050",
+                "Artículo": "ENLACE 3 PIEZAS PVC ENCOLAR 50, PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "7"
+            },
+            {
+                "Código Artículo": "0200001051",
+                "Artículo": "ENLACE 3 PIEZAS PVC ENCOLAR 63 , PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200001058",
+                "Artículo": "MACHON MIXTO PVC ENCOLAR Y ROSCA MACHO 63-50 X2 PULG",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200001061",
+                "Artículo": "REDUCCIÓN ROSCADA PVC MACHO X HEMBRA 1´´ X 4´´",
+                "Grupo": "MATERIALES",
+                "Cantidad": "15"
+            },
+            {
+                "Código Artículo": "0200001062",
+                "Artículo": "REDUCCIÓN ROSCADA PVC MACHO X HEMBRA 2´´ X 1 1/2´´ PN10",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200001065",
+                "Artículo": "TERMINAL ROSCA MACHO PVC ENCOLAR Y ROSCAR 63 X 2´´ PN10",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200001074",
+                "Artículo": "CODO 90º 200 PN10 PVC ENCOLAR",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200001077",
+                "Artículo": "CODO 90º ENCOLAR 63, PN16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200001085",
+                "Artículo": "TUBERÍA PVC PN10DIÁM. 63MM 5MTS*",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200001086",
+                "Artículo": "TUBERÍA PVC PN16 DIÁM. 32MM 5MTS",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200001087",
+                "Artículo": "CODO 45 PVC ENCOLAR 125",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200001088",
+                "Artículo": "REDUCCIÓN CÓNICA PVC ENCOLAR 75-63 X 50",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200001093",
+                "Artículo": "MANGUITO.UNION PVC ENCOLAR 75",
+                "Grupo": "MATERIALES",
+                "Cantidad": "8"
+            },
+            {
+                "Código Artículo": "0200001096",
+                "Artículo": "CODO 45º PVC ENCOLAR 50",
+                "Grupo": "MATERIALES",
+                "Cantidad": "5"
+            },
+            {
+                "Código Artículo": "0200001106",
+                "Artículo": "TERMINAL ROSCA MACHO PVC ENCOLAR Y ROSCAR 50 X 1 1/2",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200001119",
+                "Artículo": "TUBERIA PVC,(DN 200MM) 5MTS",
+                "Grupo": "MATERIALES",
+                "Cantidad": "5"
+            },
+            {
+                "Código Artículo": "0200001120",
+                "Artículo": "TUBO RIGIDO PVC NEGRO EXT25MM INT18MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "34"
+            },
+            {
+                "Código Artículo": "0200001126",
+                "Artículo": "TE 90 PVC ENCOLAR D 160",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200001127",
+                "Artículo": "TE 90 PVC ENCOLAR D125",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200001156",
+                "Artículo": "CODO 90º 90MM PPR FUSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "47"
+            },
+            {
+                "Código Artículo": "0200001157",
+                "Artículo": "CODO 90 X 63 MM PPR F",
+                "Grupo": "MATERIALES",
+                "Cantidad": "66"
+            },
+            {
+                "Código Artículo": "0200001159",
+                "Artículo": "CODO PPR 90 DN 20",
+                "Grupo": "MATERIALES",
+                "Cantidad": "971"
+            },
+            {
+                "Código Artículo": "0200001160",
+                "Artículo": "CODO 90X25MM PPR FUSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1366"
+            },
+            {
+                "Código Artículo": "0200001161",
+                "Artículo": "CODO 90X32 MM PPR FUNSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "234"
+            },
+            {
+                "Código Artículo": "0200001162",
+                "Artículo": "CODO 90X40MM PPR FUSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "68"
+            },
+            {
+                "Código Artículo": "0200001163",
+                "Artículo": "NUDO 110 MM PPR FUSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "26"
+            },
+            {
+                "Código Artículo": "0200001164",
+                "Artículo": "NUDO ADAPTADOR ROSCA MACHO PPR 32X1",
+                "Grupo": "MATERIALES",
+                "Cantidad": "300"
+            },
+            {
+                "Código Artículo": "0200001168",
+                "Artículo": "NUDO ADAPT ROSCA MACHO PPR 63X2",
+                "Grupo": "MATERIALES",
+                "Cantidad": "175"
+            },
+            {
+                "Código Artículo": "0200001170",
+                "Artículo": "NUDO RED 32 X 20 PPR FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "70"
+            },
+            {
+                "Código Artículo": "0200001171",
+                "Artículo": "NUDO RED 32 X 25 PPR FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "122"
+            },
+            {
+                "Código Artículo": "0200001172",
+                "Artículo": "NUDO RED 40 X 32 PPR FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "170"
+            },
+            {
+                "Código Artículo": "0200001175",
+                "Artículo": "NUDO RED 63 X 40 PPR FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "100"
+            },
+            {
+                "Código Artículo": "0200001181",
+                "Artículo": "NUDO RED 110X63 PPR FUSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "60"
+            },
+            {
+                "Código Artículo": "0200001186",
+                "Artículo": "UNION UNIV PPR FUSION DN 40",
+                "Grupo": "MATERIALES",
+                "Cantidad": "396"
+            },
+            {
+                "Código Artículo": "0200001187",
+                "Artículo": "UNION UNIV PPR FUSION DN 20",
+                "Grupo": "MATERIALES",
+                "Cantidad": "179"
+            },
+            {
+                "Código Artículo": "0200001188",
+                "Artículo": "NUDO REDUCIDO 110 X 90 HH PPR FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "58"
+            },
+            {
+                "Código Artículo": "0200001189",
+                "Artículo": "NUDO REDUCIDO 90X63MM PPR FUSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "60"
+            },
+            {
+                "Código Artículo": "0200001195",
+                "Artículo": "TEE 90 PP ESTABILIZADO DN 110 HHM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "108"
+            },
+            {
+                "Código Artículo": "0200001196",
+                "Artículo": "POLIFUSOR DE BANCO C/APOYO MATRICES 75-90-110 MM 220V 1000W,",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200001197",
+                "Artículo": "NUDO REDUCIDO 25 X 20 PPR FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "246"
+            },
+            {
+                "Código Artículo": "0200001233",
+                "Artículo": "TEE REDUCIDA DE POLIPROPILENO DN 110 MM X 50 MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "347"
+            },
+            {
+                "Código Artículo": "0200001240",
+                "Artículo": "POLIFUSOR EN VALIJA METÁLICA , 220V, 900W, 50/60 HZ, DN 20MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "8"
+            },
+            {
+                "Código Artículo": "0200001242",
+                "Artículo": "CONTRABRIDA DN 90MM PPR FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "50"
+            },
+            {
+                "Código Artículo": "0200001243",
+                "Artículo": "CONTRABRIDA DN 110MM PPR FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "100"
+            },
+            {
+                "Código Artículo": "0200001244",
+                "Artículo": "ADAT. PPR 20 X 1/2 M FUSIÓN FTG29101",
+                "Grupo": "MATERIALES",
+                "Cantidad": "634"
+            },
+            {
+                "Código Artículo": "0200001245",
+                "Artículo": "TEE REDUCIDA 110 X 90 X 110 PPR FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "35"
+            },
+            {
+                "Código Artículo": "0200001247",
+                "Artículo": "TAPÓN DE CIERRE DE POLIPROPILENO DN 110 MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "540"
+            },
+            {
+                "Código Artículo": "0200001250",
+                "Artículo": "UNIÓN UNIVERSAL PPR FUSIÓN DN 63MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "135"
+            },
+            {
+                "Código Artículo": "0200001251",
+                "Artículo": "TAPA PPR TERMOFUSIÓN DN 20MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "380"
+            },
+            {
+                "Código Artículo": "0200001252",
+                "Artículo": "TAPA PPR TERMOFUSIÓN DN 25MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "480"
+            },
+            {
+                "Código Artículo": "0200001253",
+                "Artículo": "TAPA PPR TERMOFUSIÓN DN 32MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "280"
+            },
+            {
+                "Código Artículo": "0200001254",
+                "Artículo": "TAPA PPR TERMOFUSIÓN DN 40MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "150"
+            },
+            {
+                "Código Artículo": "0200001255",
+                "Artículo": "TAPA PPR TERMOFUSIÓN DN 63MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "50"
+            },
+            {
+                "Código Artículo": "0200001256",
+                "Artículo": "TAPA PPR TERMOFUSIÓN DN 90MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "50"
+            },
+            {
+                "Código Artículo": "0200001257",
+                "Artículo": "TAPA PPR TERMOFUSIÓN DN 110MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "50"
+            },
+            {
+                "Código Artículo": "0200001266",
+                "Artículo": "NUDO PPR 20MM FUSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "108"
+            },
+            {
+                "Código Artículo": "0200001268",
+                "Artículo": "NUDO 32MM PPR FUNSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "198"
+            },
+            {
+                "Código Artículo": "0200001269",
+                "Artículo": "NUDO 40MM PPR FUNSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "145"
+            },
+            {
+                "Código Artículo": "0200001271",
+                "Artículo": "NUDO 63MM PPR FUNSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "100"
+            },
+            {
+                "Código Artículo": "0200001272",
+                "Artículo": "NUDO 90MM PPR FUSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "43"
+            },
+            {
+                "Código Artículo": "0200001273",
+                "Artículo": "NUDO ADAPT. ROSCA MACHO PPR 40 X 1 1/4 F/R",
+                "Grupo": "MATERIALES",
+                "Cantidad": "370"
+            },
+            {
+                "Código Artículo": "0200001274",
+                "Artículo": "ADAPT.25 X 3/4 PPR FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "96"
+            },
+            {
+                "Código Artículo": "0200001275",
+                "Artículo": "ADAPTADOR PPR TERMOFUSIÓN ROSCA MACHO DN 110MM X 4´´",
+                "Grupo": "MATERIALES",
+                "Cantidad": "20"
+            },
+            {
+                "Código Artículo": "0200001280",
+                "Artículo": "CODO 90ºX110PPR FUSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "50"
+            },
+            {
+                "Código Artículo": "0200001283",
+                "Artículo": "TE 110MM PPR FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "34"
+            },
+            {
+                "Código Artículo": "0200001284",
+                "Artículo": "TEE 20 MM PPR FUSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "30"
+            },
+            {
+                "Código Artículo": "0200001286",
+                "Artículo": "TE 32MM PPR FUNSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "23"
+            },
+            {
+                "Código Artículo": "0200001287",
+                "Artículo": "TE 40MM PPR FUNSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "63"
+            },
+            {
+                "Código Artículo": "0200001289",
+                "Artículo": "TE 63MM PPR FUNSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "100"
+            },
+            {
+                "Código Artículo": "0200001290",
+                "Artículo": "TE 90MM PPR FUSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "48"
+            },
+            {
+                "Código Artículo": "0200001291",
+                "Artículo": "TE REDUCIDA 32X20X32 PPR FUNSION",
+                "Grupo": "MATERIALES",
+                "Cantidad": "17"
+            },
+            {
+                "Código Artículo": "0200001294",
+                "Artículo": "TE REDUCIDA 40X32X40 PPR F",
+                "Grupo": "MATERIALES",
+                "Cantidad": "50"
+            },
+            {
+                "Código Artículo": "0200001296",
+                "Artículo": "TE REDUCIDA 63X40X63 PPR F",
+                "Grupo": "MATERIALES",
+                "Cantidad": "60"
+            },
+            {
+                "Código Artículo": "0200001303",
+                "Artículo": "VALV. BOLA PVC-U PE-EPDM ENCOLAR 50",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200001305",
+                "Artículo": "VÁLVULA BOLA (STO) PVC-U PE-EPDM ENCOLAR 63",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200001306",
+                "Artículo": "VÁLVULA DE CLAPETA C/KIT ACCESORIOS PVC-U 90 PN6",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200001307",
+                "Artículo": "VALV. MARIPOSA SERIE STANDAR PVC-U/ZINC/EPDM/MANETA 90",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200001308",
+                "Artículo": "VÁLVULA BOLA STD PVC-U PE-EPDM ENCOLAR 32",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200001318",
+                "Artículo": "VALV. BOLA STD PVC PE-EPDM ENCOLAR 75",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200001332",
+                "Artículo": "VALVULA DE ESFERA LATON CROMADA DN 3/4",
+                "Grupo": "MATERIALES",
+                "Cantidad": "314"
+            },
+            {
+                "Código Artículo": "0200001333",
+                "Artículo": "VÁLVULA DE ESFERA DN 1 1/4 CROMADA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "163"
+            },
+            {
+                "Código Artículo": "0200001334",
+                "Artículo": "VÁLVULA DE ESFERA DN 2 LATÓN CROMADA.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "100"
+            },
+            {
+                "Código Artículo": "0200001338",
+                "Artículo": "VÁLVULA DE ESFERA LATÓN CROMADA DN 1.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "124"
+            },
+            {
+                "Código Artículo": "0200001348",
+                "Artículo": "VÁLVULA ESFERA DN 1/2 LATÓN CROMADA.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "157"
+            },
+            {
+                "Código Artículo": "0200001349",
+                "Artículo": "VÁLVULA DE BOLA DE LATÓN PN 16 CON CUERPO Y VÁSTAGO LATÓN MA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "72"
+            },
+            {
+                "Código Artículo": "0200001350",
+                "Artículo": "VÁLVULA DE ESFERA DN 3 LATÓN CROMADA.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "28"
+            },
+            {
+                "Código Artículo": "0200001352",
+                "Artículo": "VALVULA ANTIRETORNO PVC-U (EPDM) ENCOLAR D63",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200001360",
+                "Artículo": "RACOR NUDO  PAREJOÑLATÓN 25 COMPRESIÓN (HIDRÁULICA).",
+                "Grupo": "MATERIALES",
+                "Cantidad": "800"
+            },
+            {
+                "Código Artículo": "0200001362",
+                "Artículo": "RACOR NUDO PAREJO LATÓN 32 COMPRESIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "450"
+            },
+            {
+                "Código Artículo": "0200001364",
+                "Artículo": "RACOR NUDO LATÓN ROSCA MACHO 90 X 3 PLATILLADO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "60"
+            },
+            {
+                "Código Artículo": "0200001366",
+                "Artículo": "CUBRE TORNILLO T NATURAL.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4500"
+            },
+            {
+                "Código Artículo": "0200001369",
+                "Artículo": "BRIDA LOCA DN 90MM EN ACERO REVESTIDA CON EPOXI P/PPR",
+                "Grupo": "MATERIALES",
+                "Cantidad": "73"
+            },
+            {
+                "Código Artículo": "0200001371",
+                "Artículo": "BRIDA LOCA EN ACERO, REVESTIDA CON EPOXI. DN 110MM P/PPR",
+                "Grupo": "MATERIALES",
+                "Cantidad": "30"
+            },
+            {
+                "Código Artículo": "0200001374",
+                "Artículo": "VENTOSA CEPEX 1 PULG. M TRIPLE PROPÓSITO PN16 VENTOSA DE TRI",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200001378",
+                "Artículo": "TAPÓN DE PVC ROSCA MACHO  DN 1/2´´",
+                "Grupo": "MATERIALES",
+                "Cantidad": "390"
+            },
+            {
+                "Código Artículo": "0200001379",
+                "Artículo": "TAPÓN DE PVC ROSCA MACHO DN 3/4´´",
+                "Grupo": "MATERIALES",
+                "Cantidad": "390"
+            },
+            {
+                "Código Artículo": "0200001381",
+                "Artículo": "TUBERIA PVC PN-16 25MM 5MTS",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200001384",
+                "Artículo": "TUBERIA PVC PN10 DIAM. 125MM 6MT",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200001385",
+                "Artículo": "TUBERÍA PVC HIDRÁULICA PN 16 DE 2´´",
+                "Grupo": "MATERIALES",
+                "Cantidad": "18"
+            },
+            {
+                "Código Artículo": "0200001388",
+                "Artículo": "TUBERÍA PVC PN10 DIÁMETRO 90MM (6MT)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "16"
+            },
+            {
+                "Código Artículo": "0200001390",
+                "Artículo": "TUBERÍA PVC PN10 DIÁMETRO 140MM (6M)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200001391",
+                "Artículo": "TUBO PPR 20 X 3.4 PN20 4M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1138"
+            },
+            {
+                "Código Artículo": "0200001392",
+                "Artículo": "TUBO PPR 25 X 4.2 PN 20 4M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1444"
+            },
+            {
+                "Código Artículo": "0200001393",
+                "Artículo": "TUBO 32 X 5.4 PN 20 PPR 4M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1436"
+            },
+            {
+                "Código Artículo": "0200001395",
+                "Artículo": "TUBO PPR 40 X 6.7 PN 20 4M FTG20005",
+                "Grupo": "MATERIALES",
+                "Cantidad": "448"
+            },
+            {
+                "Código Artículo": "0200001396",
+                "Artículo": "TUBO PPR 63 X 10.5 PN 20 4M FTG20007",
+                "Grupo": "MATERIALES",
+                "Cantidad": "400"
+            },
+            {
+                "Código Artículo": "0200001397",
+                "Artículo": "TUBO PPR 90 X15 PN 20 4M FTG2009",
+                "Grupo": "MATERIALES",
+                "Cantidad": "244"
+            },
+            {
+                "Código Artículo": "0200001398",
+                "Artículo": "TUBO PPR 110 X 18.3 PN 20 4M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "252"
+            },
+            {
+                "Código Artículo": "0200001428",
+                "Artículo": "CABLE MONOCONDUCTOR, FLEXIBLE H07V-K 1X2,5 MM2 (14 AWG) ROJO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "27500"
+            },
+            {
+                "Código Artículo": "0200001430",
+                "Artículo": "CABLE MONOCONDUCTOR, FLEXIBLE H07V-K 1X2,5 MM2 (14 AWG) AZUL",
+                "Grupo": "MATERIALES",
+                "Cantidad": "30200"
+            },
+            {
+                "Código Artículo": "0200001431",
+                "Artículo": "CABLE MONOCONDUCTOR, FLEXIBLE H07V-K 1X2,5 MM2 (14 AWG) V-A",
+                "Grupo": "MATERIALES",
+                "Cantidad": "25500"
+            },
+            {
+                "Código Artículo": "0200001432",
+                "Artículo": "CABLE MONOCONDUCTOR, FLEXIBLE H07V-K 1X 4 MM2 (12 AWG) AZUL",
+                "Grupo": "MATERIALES",
+                "Cantidad": "29950"
+            },
+            {
+                "Código Artículo": "0200001433",
+                "Artículo": "CABLE MONOCONDUCTOR, FLEXIBLE H07V-K 1X 4 MM2 (12 AWG) NEGRO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "29000"
+            },
+            {
+                "Código Artículo": "0200001434",
+                "Artículo": "CABLE MONOCONDUCTOR, FLEXIBLE H07V-K 1X 4 MM2 (12 AWG) ROJO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "31000"
+            },
+            {
+                "Código Artículo": "0200001435",
+                "Artículo": "CABLE MONOCONDUCTOR, FLEXIBLE H07V-K 1X 4 MM2 (12 AWG) V-A",
+                "Grupo": "MATERIALES",
+                "Cantidad": "25900"
+            },
+            {
+                "Código Artículo": "0200001436",
+                "Artículo": "CABLE MONOCONDUCTOR FLEXIBLE HO7V-K 1X6MM2 (10AWG) ROJO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1500"
+            },
+            {
+                "Código Artículo": "0200001437",
+                "Artículo": "CABLE MONOCONDUCTOR FLEXIBLE HO7V-K 1X6MM2 (10AWG) AZUL",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2000"
+            },
+            {
+                "Código Artículo": "0200001438",
+                "Artículo": "CABLE MONOCONDUCTOR FLEXIBLE HO7V-K 1X6MM2 (10AWG) VERDE/AMA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "800"
+            },
+            {
+                "Código Artículo": "0200001439",
+                "Artículo": "CABLE MONOCONDUCTOR FLEXIBLE HO7V-K 1X10MM2 (8AWG) VERDE/AMA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1400"
+            },
+            {
+                "Código Artículo": "0200001440",
+                "Artículo": "CABLE MONOCONDUCTOR FLEXIBLE H07V-K 1X2.5MM2 (14AWG)VERDE/AM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1800"
+            },
+            {
+                "Código Artículo": "0200001441",
+                "Artículo": "CABLE MONOCONDUCTOR FLEXIBLE H07V-K 1X4MM2 (12AWG)VERDE/AMAR",
+                "Grupo": "MATERIALES",
+                "Cantidad": "5000"
+            },
+            {
+                "Código Artículo": "0200001443",
+                "Artículo": "CABLE MONOCONDUCTOR DE COBRE 750V, 70*C C/AISLAMIENTO DE PVC",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1200"
+            },
+            {
+                "Código Artículo": "0200001445",
+                "Artículo": "CABLE MONOCONDUCTOR DE COBRE 750V, 70*C, FLEXIBLE, CON AISLA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2000"
+            },
+            {
+                "Código Artículo": "0200001448",
+                "Artículo": "CABLE MONOCONDUCTOR 750V, 70*C, CON AISLAMIENTO DE PVC, 100M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2700"
+            },
+            {
+                "Código Artículo": "0200001449",
+                "Artículo": "CABLE MONOCONDUCTOR DE COBRE 750V, 70*C, CON AISLAMIENTO DE",
+                "Grupo": "MATERIALES",
+                "Cantidad": "400"
+            },
+            {
+                "Código Artículo": "0200001452",
+                "Artículo": "CABLE MONOCONDUCTOR, FLEXIBLE H07V-K 1X2,5 MM2(14AWG)NEGRO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "28000"
+            },
+            {
+                "Código Artículo": "0200001478",
+                "Artículo": "TAPA P/INTERRUPTOR SENCILLO MARFIL",
+                "Grupo": "MATERIALES",
+                "Cantidad": "195"
+            },
+            {
+                "Código Artículo": "0200001479",
+                "Artículo": "TOMACORRIENTE SENCILLO 15A/120V MARFIL",
+                "Grupo": "MATERIALES",
+                "Cantidad": "20"
+            },
+            {
+                "Código Artículo": "0200001487",
+                "Artículo": "INTERRUPTOR DOBLE MARFIL PLÁSTICO 15A/120V",
+                "Grupo": "MATERIALES",
+                "Cantidad": "165"
+            },
+            {
+                "Código Artículo": "0200001495",
+                "Artículo": "BREAKER 50A. 3POLO 120/240V 60 HZ INGELEC",
+                "Grupo": "MATERIALES",
+                "Cantidad": "9"
+            },
+            {
+                "Código Artículo": "0200001496",
+                "Artículo": "BREAKER 63A 3 POLO 120/240V 6.0HZ INGELEC",
+                "Grupo": "MATERIALES",
+                "Cantidad": "16"
+            },
+            {
+                "Código Artículo": "0200001497",
+                "Artículo": "TAPE CINTA AISLANTE ELÉCTRICA DE PVC NEGRA 0.13MM18MM 9",
+                "Grupo": "MATERIALES",
+                "Cantidad": "19"
+            },
+            {
+                "Código Artículo": "0200001498",
+                "Artículo": "BREAKERDE 3POLOS, 25A INGELEC 1435 CARCASA DE PVC",
+                "Grupo": "MATERIALES",
+                "Cantidad": "7"
+            },
+            {
+                "Código Artículo": "0200001499",
+                "Artículo": "BREAKER 20A.3 POLO 120/240V 60HZ INGELEC.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "17"
+            },
+            {
+                "Código Artículo": "0200001500",
+                "Artículo": "INTERRUPTOR SENCILLO 3 VÍAS, 16A, 127V U X CAJA: 1 PLÁSTICO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "600"
+            },
+            {
+                "Código Artículo": "0200001501",
+                "Artículo": "INTERRUPTOR DOBLE 2 VÍAS, 16A, 127V U X CAJA: 1 PLÁSTICO Y C",
+                "Grupo": "MATERIALES",
+                "Cantidad": "710"
+            },
+            {
+                "Código Artículo": "0200001502",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 1P 6/10 KA C-25A 1M MU125",
+                "Grupo": "MATERIALES",
+                "Cantidad": "414"
+            },
+            {
+                "Código Artículo": "0200001503",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 1P 6/10 KA C-32A 1M MU132",
+                "Grupo": "MATERIALES",
+                "Cantidad": "73"
+            },
+            {
+                "Código Artículo": "0200001504",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 1P 6/10 KA C-40 A 1M MU14",
+                "Grupo": "MATERIALES",
+                "Cantidad": "14"
+            },
+            {
+                "Código Artículo": "0200001505",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 2P 6/10 KA C-10 A 2M MU21",
+                "Grupo": "MATERIALES",
+                "Cantidad": "43"
+            },
+            {
+                "Código Artículo": "0200001506",
+                "Artículo": "CAJA DE EMPOTRAR 2 X 4 PARA MECANISMOS AMERICANO PVC",
+                "Grupo": "MATERIALES",
+                "Cantidad": "802"
+            },
+            {
+                "Código Artículo": "0200001507",
+                "Artículo": "TOMACORRIENTE EUROAMERICANA DUPLEX 2P + T, 16A, 127/220V",
+                "Grupo": "MATERIALES",
+                "Cantidad": "494"
+            },
+            {
+                "Código Artículo": "0200001508",
+                "Artículo": "INTERRUPTOR SENCILLO 2 VÍAS, 16A, 127V PLÁSTICO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "706"
+            },
+            {
+                "Código Artículo": "0200001509",
+                "Artículo": "CAJA DE EMPOTRAR 4X4 NORMA AMERICANA, IP-20, SIN TAPA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "576"
+            },
+            {
+                "Código Artículo": "0200001510",
+                "Artículo": "TAPA DE 4X4 CON REDUCIDO DE 4X2",
+                "Grupo": "MATERIALES",
+                "Cantidad": "570"
+            },
+            {
+                "Código Artículo": "0200001511",
+                "Artículo": "TAPA DE 4X4 CIEGA PVC",
+                "Grupo": "MATERIALES",
+                "Cantidad": "289"
+            },
+            {
+                "Código Artículo": "0200001512",
+                "Artículo": "TAPA PLÁSTICA PARA TOMACORRIENTE INTERRUPTOR DOBLE ABS 15 A/",
+                "Grupo": "MATERIALES",
+                "Cantidad": "25"
+            },
+            {
+                "Código Artículo": "0200001513",
+                "Artículo": "INTERRUPTOR DIFERENCIAL RCCB RCCB 2P 25A 30MA AC 60HZ",
+                "Grupo": "MATERIALES",
+                "Cantidad": "147"
+            },
+            {
+                "Código Artículo": "0200001514",
+                "Artículo": "CONTACTOR SILENCIOSO 25A 2NA 230V",
+                "Grupo": "MATERIALES",
+                "Cantidad": "135"
+            },
+            {
+                "Código Artículo": "0200001515",
+                "Artículo": "COFRE MINI PRAGMA EMPOTRAR 1F 12 MOD BLANCO C/BORNERAS DE TI",
+                "Grupo": "MATERIALES",
+                "Cantidad": "169"
+            },
+            {
+                "Código Artículo": "0200001516",
+                "Artículo": "CAJA EMPOTRABLE GOLF SERIE VF, 1 FILA, 8M, PUERTA OPACA BLAN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200001517",
+                "Artículo": "INTERRUPTOR AUTOMÁTICO MODULAR MCB 1P 6/10 KA C-6A 1M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "300"
+            },
+            {
+                "Código Artículo": "0200001518",
+                "Artículo": "INTERRUPTOR AUTOMÁTICO MODULAR MCB 1P 6/10 KA C-10A 1M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "354"
+            },
+            {
+                "Código Artículo": "0200001519",
+                "Artículo": "INTERRUPTOR AUTOMÁTICO MODULAR MCB 1P 6/10 KA C-16A 1M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "397"
+            },
+            {
+                "Código Artículo": "0200001520",
+                "Artículo": "INTERRUPTOR AUTOMÁTICO MODULAR MCB 1P 6/10 KA C-20A",
+                "Grupo": "MATERIALES",
+                "Cantidad": "120"
+            },
+            {
+                "Código Artículo": "0200001521",
+                "Artículo": "INTERRUPTOR AUTOMÁTICO MODULAR MCB 2P 6/10 KA C-20A 2M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "166"
+            },
+            {
+                "Código Artículo": "0200001522",
+                "Artículo": "CONTACTOR SILENCIOSO 25A 1NA 230V",
+                "Grupo": "MATERIALES",
+                "Cantidad": "214"
+            },
+            {
+                "Código Artículo": "0200001523",
+                "Artículo": "DPSC1P+N TIPO 3 UC 264V IN 5KA, UOC 6KV UP 1.25KV CON CONTAC",
+                "Grupo": "MATERIALES",
+                "Cantidad": "200"
+            },
+            {
+                "Código Artículo": "0200001524",
+                "Artículo": "REGLETA NYLBLOC 6 MM2 NEGRA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1020"
+            },
+            {
+                "Código Artículo": "0200001525",
+                "Artículo": "CAJA ESTANCA 107X107X60MM, TAPA DE CIERRE MEDIANTE TORNILLO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "479"
+            },
+            {
+                "Código Artículo": "0200001526",
+                "Artículo": "TOMA TV COAXIAL",
+                "Grupo": "MATERIALES",
+                "Cantidad": "200"
+            },
+            {
+                "Código Artículo": "0200001527",
+                "Artículo": "TOMA TELEFÓNICA RJ11",
+                "Grupo": "MATERIALES",
+                "Cantidad": "200"
+            },
+            {
+                "Código Artículo": "0200001528",
+                "Artículo": "CINTA AISLANTE DE PVC DE 19MMX20M, N12, COLOR NEGRO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1685"
+            },
+            {
+                "Código Artículo": "0200001529",
+                "Artículo": "CINTA AISLANTE DE GOMA AUTOVULCANIZABLE 10MX25MMX0,76MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "638"
+            },
+            {
+                "Código Artículo": "0200001530",
+                "Artículo": "TERMINAL DE OJO CABLE 70MM, OJO 10MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "38"
+            },
+            {
+                "Código Artículo": "0200001531",
+                "Artículo": "INT. TERMOMAGNETICO CAJA MOLDEADA X160,3P3D, 40KA, 100A",
+                "Grupo": "MATERIALES",
+                "Cantidad": "8"
+            },
+            {
+                "Código Artículo": "0200001532",
+                "Artículo": "INTERRUPTOR TERMOMAGETICO CAJA MOLDEADA X160, 3P3D, 40KA, 16",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200001533",
+                "Artículo": "INTERRUPTOR AUTOMATICO CAJA MOLDEADA H3+ X630, 3P3D 630A",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200001534",
+                "Artículo": "INTERRUPTOR MODULAR HAGER, SERIE SB, 3POLOS INTENSIDAD NOMIN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200001535",
+                "Artículo": "INTERRUPTOR MODULAR HAGAR, SERIE 5B 3P INTENSIDAD NOMINAL 10",
+                "Grupo": "MATERIALES",
+                "Cantidad": "5"
+            },
+            {
+                "Código Artículo": "0200001536",
+                "Artículo": "INTERRUPTOR MODULAR HAGER SERIE 5B, 3P INTENSIDAD NOMINAL 12",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200001537",
+                "Artículo": "CONTACTOR SILENCIOSO 25A, 3NC, 230V U",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200001538",
+                "Artículo": "CONTACTOR ILENCIOSO 40A 2NA 230V U PVC",
+                "Grupo": "MATERIALES",
+                "Cantidad": "7"
+            },
+            {
+                "Código Artículo": "0200001539",
+                "Artículo": "CAJA DE ADOSAR 4X2´´ CON FONDO CERRADO CANALETA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "40"
+            },
+            {
+                "Código Artículo": "0200001540",
+                "Artículo": "TOMACORRIENTE EUROAMERICANA SENCILLO 2P+T, 16A, 127/220V",
+                "Grupo": "MATERIALES",
+                "Cantidad": "848"
+            },
+            {
+                "Código Artículo": "0200001541",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 3P 10KA C-80A 4.5M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200001542",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 3P 10KA C-100A 4.5M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200001543",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 1P 6/10 KA C-20A 1M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "19"
+            },
+            {
+                "Código Artículo": "0200001544",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 2P 6/10 KA C-16 A 2M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200001545",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 2P 6/10 KA C-25 A 2M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200001546",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 2P 6/10 KA C-50 A 2M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200001547",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 2P 6/10KA C-63A 2M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200001548",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 3P 6/10 KA C-16 A 3M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "55"
+            },
+            {
+                "Código Artículo": "0200001549",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 3P 6/10 KA C-25 A 3M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "125"
+            },
+            {
+                "Código Artículo": "0200001550",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 3P 6/10 KA C-32 A 3M UM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200001551",
+                "Artículo": "INTERRUPTOR MODULAR MCB 3P 6/10 KA C-40 A 3M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "36"
+            },
+            {
+                "Código Artículo": "0200001552",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 3P 6/10 KA C-63 A 3M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "8"
+            },
+            {
+                "Código Artículo": "0200001553",
+                "Artículo": "INTERRUPTOR AUTOMATICO MODULAR MCB 3P 6/10 KA C-10 A 3M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200001555",
+                "Artículo": "TUBERIA ELECTRICA FLEXIBLE 20MM PVC",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1050"
+            },
+            {
+                "Código Artículo": "0200001556",
+                "Artículo": "TUBERIA ELECTRICA FLRXIBLE 25MM PVC",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1875"
+            },
+            {
+                "Código Artículo": "0200001557",
+                "Artículo": "TUBO FLEXIBLE PVC CORRUGADO C20,EXT.20MM, INT. 13.4MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "33260"
+            },
+            {
+                "Código Artículo": "0200001558",
+                "Artículo": "TUBO FLEXIBLE PVC CORRUGADO C25, EXT 25MM, DIAM.EXT.25MM, DI",
+                "Grupo": "MATERIALES",
+                "Cantidad": "35865"
+            },
+            {
+                "Código Artículo": "0200001562",
+                "Artículo": "VARILLA ROSCADA ZINCADA L-1M , M8.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "134"
+            },
+            {
+                "Código Artículo": "0200001576",
+                "Artículo": "TORNILLO ROSCA CHAPA CON CABEZA HEXAGONAL DE HIERRO 6.5 MMX1",
+                "Grupo": "MATERIALES",
+                "Cantidad": "392"
+            },
+            {
+                "Código Artículo": "0200001580",
+                "Artículo": "TACO BRIDA 3MM BLANCO 1XCJA 1 PLASTICO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "30"
+            },
+            {
+                "Código Artículo": "0200001581",
+                "Artículo": "TORNILLO M16 X 90 ZINCADO Y PAVONADO DR16X90.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "320"
+            },
+            {
+                "Código Artículo": "0200001582",
+                "Artículo": "TORNILLO M16 X 120 ZINCADO Y PAVONADO DR16X120.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "342"
+            },
+            {
+                "Código Artículo": "0200001584",
+                "Artículo": "TACO DE NYLON 4 SEGMENTO TN45 5X25 DIÁMETRO 5",
+                "Grupo": "MATERIALES",
+                "Cantidad": "300"
+            },
+            {
+                "Código Artículo": "0200001585",
+                "Artículo": "TORNILLOS CABEZA AVELLANADA ZINCADO 4,0X030",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200001586",
+                "Artículo": "TORNILLO, TUERCA Y ARANDELAS M 16 X 150",
+                "Grupo": "MATERIALES",
+                "Cantidad": "28"
+            },
+            {
+                "Código Artículo": "0200001587",
+                "Artículo": "TORNILLO, TUERCA Y ARANDELAS DM 16 X 90",
+                "Grupo": "MATERIALES",
+                "Cantidad": "32"
+            },
+            {
+                "Código Artículo": "0200001614",
+                "Artículo": "MANGUITO UNION PVC ENCOLAR 90",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200001618",
+                "Artículo": "MODULO REFILLA TRASVERSAL PARA CURVAS 335MM NORMA EN 1345-1",
+                "Grupo": "MATERIALES",
+                "Cantidad": "8000"
+            },
+            {
+                "Código Artículo": "0200001630",
+                "Artículo": "TUBER PVC PN-10 50MM 5MTS",
+                "Grupo": "MATERIALES",
+                "Cantidad": "14"
+            },
+            {
+                "Código Artículo": "0200001635",
+                "Artículo": "VALV. DE CLAPETA CON KIT ACCESORIOS PVC-U 160",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200001639",
+                "Artículo": "VISOR DE LÍQUIDOS PVC ENCOLAR 50",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200001675",
+                "Artículo": "JUNTA DE GOMA REFORZADA  D110 (AMIANTO)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "50"
+            },
+            {
+                "Código Artículo": "0200001676",
+                "Artículo": "JUNTA DE GOMA O DE AMIANTO REFORZADA DN90",
+                "Grupo": "MATERIALES",
+                "Cantidad": "50"
+            },
+            {
+                "Código Artículo": "0200001678",
+                "Artículo": "JUNTA PLANA EVA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "8"
+            },
+            {
+                "Código Artículo": "0200001691",
+                "Artículo": "MANGUITO UNIÓN DOBLE ROSCA PVC ROSCAR D 1 PULG.",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200001698",
+                "Artículo": "ABRAZADERA AB-PU GRAPA PUENTE 25MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1870"
+            },
+            {
+                "Código Artículo": "0200001699",
+                "Artículo": "KIT ACCESORIOS VALVULA MARIPOSA PVC-U BRIDA MOVIL D90. INCLU",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200001701",
+                "Artículo": "BRIDA PVC D90",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200001707",
+                "Artículo": "MALLA CICLON 2X1.75MX20M COLOR VERDE REVESTIMIENTO PVC (ROLL",
+                "Grupo": "MATERIALES",
+                "Cantidad": "193"
+            },
+            {
+                "Código Artículo": "0200001727",
+                "Artículo": "ESPEJO 60 X 80 C/APLIQUE  DOBLE BLANCO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "111"
+            },
+            {
+                "Código Artículo": "0200001742",
+                "Artículo": "BOMBILLO LED E-27 DE 5W 110V/220V TIPO VELA, LUZ CÁLIDA",
+                "Grupo": "MATERIALES",
+                "Cantidad": "63"
+            },
+            {
+                "Código Artículo": "0200001744",
+                "Artículo": "BOMBILLO LED ESFERICO 6.5 WATT BLANCO CALIDO TIPO DE  LED:SM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "39"
+            },
+            {
+                "Código Artículo": "0200001745",
+                "Artículo": "BOMBILLO LED TIPO VELA 6.5 WATT BLANCO CALIDO TIPO DE  LED:5",
+                "Grupo": "MATERIALES",
+                "Cantidad": "7"
+            },
+            {
+                "Código Artículo": "0200001746",
+                "Artículo": "LÁMPARA FOTOVOLTAICA CON PANEL SOLAR INTEGRADO Y ACCESORIOS",
+                "Grupo": "MATERIALES",
+                "Cantidad": "270"
+            },
+            {
+                "Código Artículo": "0200001747",
+                "Artículo": "BOMBILLO LED ESFERICO 12 WATT BLANCO CALIDO TIPO DE  LED:SMD",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200001755",
+                "Artículo": "TUBO LED DE 18W, LUZ BLANCA MULTIVOLTAJE, 1.20M DE LARGO 100",
+                "Grupo": "MATERIALES",
+                "Cantidad": "45"
+            },
+            {
+                "Código Artículo": "0200001757",
+                "Artículo": "LUMINARIA DECORATIVA DE SUPENSION POR CADENA Y PANTALLA DE C",
+                "Grupo": "MATERIALES",
+                "Cantidad": "15"
+            },
+            {
+                "Código Artículo": "0200001761",
+                "Artículo": "APLIQUES DE PARED DE ESTILO MODERNO , LUZ BLANCO CÁLIDO CUAD",
+                "Grupo": "MATERIALES",
+                "Cantidad": "54"
+            },
+            {
+                "Código Artículo": "0200001762",
+                "Artículo": "APLIQUES DE PARED ESTILO MODERNO LUZ BLANCO CÁLIDO REDONDA D",
+                "Grupo": "MATERIALES",
+                "Cantidad": "20"
+            },
+            {
+                "Código Artículo": "0200001763",
+                "Artículo": "LUMINARIA DECORATIVA PARA MESA PARA USO INTERIOR 85-265VCA 1",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200001769",
+                "Artículo": "LUMINARIA DECORATIVA DE SUPENSION POR CADENAS Y PANTALLA DE",
+                "Grupo": "MATERIALES",
+                "Cantidad": "5"
+            },
+            {
+                "Código Artículo": "0200001770",
+                "Artículo": "LUMINARIA DECORATIVA DE SUPENSION POR CADENAS Y PANTALLA DE",
+                "Grupo": "MATERIALES",
+                "Cantidad": "5"
+            },
+            {
+                "Código Artículo": "0200001771",
+                "Artículo": "LUMINARIA DECORATIVA DE SUPENSION POR SOGA Y PANTALLA DE VID",
+                "Grupo": "MATERIALES",
+                "Cantidad": "8"
+            },
+            {
+                "Código Artículo": "0200001772",
+                "Artículo": "LUMINARIA DECORATIVA DE SUSPENCION POR SOGA Y PANTALLA DE VI",
+                "Grupo": "MATERIALES",
+                "Cantidad": "4"
+            },
+            {
+                "Código Artículo": "0200001773",
+                "Artículo": "LUMINARIA DECORATIVA DE SUSPENCION POR CADENAS Y PANTALLA DE",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200001774",
+                "Artículo": "BOMBA SUMERGIBLE DX100G 1HP 220-60HZ DNM G 1 1/2´´ CON CABLE",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200001776",
+                "Artículo": "CABLE MONOCONDUCTOR FLEXIBLE HO7V-K 1X16MM2 (6AWG)VERDE/AMAR",
+                "Grupo": "MATERIALES",
+                "Cantidad": "800"
+            },
+            {
+                "Código Artículo": "0200001778",
+                "Artículo": "MEMBRANA IMPERMEABLE PREFABRICADA AUTOPROTEGIDA C/PIZARRAS A",
+                "Grupo": "MATERIALES",
+                "Cantidad": "10"
+            },
+            {
+                "Código Artículo": "0200001779",
+                "Artículo": "EMULSIÓN BASE BITUMINOSA P/FACILITAR ADHESIÓN DE LAS TELAS A",
+                "Grupo": "MATERIALES",
+                "Cantidad": "80"
+            },
+            {
+                "Código Artículo": "0200001816",
+                "Artículo": "NUDO 90 MM PPR FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200001817",
+                "Artículo": "ADAPTADOR M PPR 75 X 2 1/2 FUSIÓN",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200001821",
+                "Artículo": "BATERÍA DE CICLO PROFUNDO PARA CARROS ELÉCTRICOS (TROJAN DE",
+                "Grupo": "MATERIALES",
+                "Cantidad": "12"
+            },
+            {
+                "Código Artículo": "0200001826",
+                "Artículo": "CABLE H07V-K 1 X 6 MM2 COLOR NEGRO ROLLO-100M",
+                "Grupo": "MATERIALES",
+                "Cantidad": "400"
+            },
+            {
+                "Código Artículo": "0200001827",
+                "Artículo": "CABLE RV-K 4 X 4 MM2 ROLLO-2500 MTS ( P1-12)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "820"
+            },
+            {
+                "Código Artículo": "0200001830",
+                "Artículo": "TORNILLO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "24"
+            },
+            {
+                "Código Artículo": "0200001846",
+                "Artículo": "BOMBA MAXIM DE 3.5 CV TRIFÁSICA, 230/400 V 60 HZ",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200001851",
+                "Artículo": "BOMBA CENTRÍFUGA  VICTORIA PLUS SILENT 2CV TRIF.60 HZ",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200001888",
+                "Artículo": "PINTURA ACRÍLICA SPECTRUM PREMIUM BLANCO (19 LTS)",
+                "Grupo": "MATERIALES",
+                "Cantidad": "7"
+            },
+            {
+                "Código Artículo": "0200001892",
+                "Artículo": "CONTRABRIDA PN16 DN 200 PVC TECNO",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200001893",
+                "Artículo": "FILTRO MONOCAPA PRAGA 1400 SAL90",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1"
+            },
+            {
+                "Código Artículo": "0200001894",
+                "Artículo": "JUNTA ACÚSTICA AUTOADHESIVA 50 MM",
+                "Grupo": "MATERIALES",
+                "Cantidad": "210"
+            },
+            {
+                "Código Artículo": "0200001895",
+                "Artículo": "PLACA BASE PCCB EXTRALARGE",
+                "Grupo": "MATERIALES",
+                "Cantidad": "3"
+            },
+            {
+                "Código Artículo": "0200001896",
+                "Artículo": "PLACA D/EXPANSIÓN PICC 485",
+                "Grupo": "MATERIALES",
+                "Cantidad": "2"
+            },
+            {
+                "Código Artículo": "0200001900",
+                "Artículo": "TUBO FLEXIBLE MEXICANO DE 1 1/2 GRIS",
+                "Grupo": "MATERIALES",
+                "Cantidad": "6"
+            },
+            {
+                "Código Artículo": "0200001906",
+                "Artículo": "BROCHA LA BUENA 4´´",
+                "Grupo": "MATERIALES",
+                "Cantidad": "11"
+            },
+            {
+                "Código Artículo": "0200001907",
+                "Artículo": "FELPA 9´´ ALTA DENSIDAD 1´´",
+                "Grupo": "MATERIALES",
+                "Cantidad": "5"
+            },
+            {
+                "Código Artículo": "0200001922",
+                "Artículo": "TEJAS DE RESINA POLYMCMY MD OLANDES",
+                "Grupo": "MATERIALES",
+                "Cantidad": "240"
+            },
+            {
+                "Código Artículo": "0200001923",
+                "Artículo": "CUMBRERA UNIVERSAL TEJA OLANDESE",
+                "Grupo": "MATERIALES",
+                "Cantidad": "30"
+            },
+            {
+                "Código Artículo": "0200001924",
+                "Artículo": "JUNTA, PARA CUMBRERA TEJA OLANDESE",
+                "Grupo": "MATERIALES",
+                "Cantidad": "130"
+            },
+            {
+                "Código Artículo": "0200001925",
+                "Artículo": "TORNILLO (6.3 X 100 MM) AUTOROSCANTE P/METAL",
+                "Grupo": "MATERIALES",
+                "Cantidad": "20"
+            },
+            {
+                "Código Artículo": "0200001926",
+                "Artículo": "TORNILLO, (6.3 X 120MM) P/METAL",
+                "Grupo": "MATERIALES",
+                "Cantidad": "600"
+            },
+            {
+                "Código Artículo": "0200002610",
+                "Artículo": "PROYECTOR PARA PROTECCIÓN DE EXTERIORES",
+                "Grupo": "MATERIALES",
+                "Cantidad": "40"
+            },
+            {
+                "Código Artículo": "0200002695",
+                "Artículo": "PINTURA (CBX04LT)SALMÓN PREMIUM LTS  SPECTRUM AP97-3",
+                "Grupo": "MATERIALES",
+                "Cantidad": "302"
+            },
+            {
+                "Código Artículo": "0200002696",
+                "Artículo": "PINTURA SPECTRUM PREMIUM AZUL RAL5005 (19 LTS)*",
+                "Grupo": "MATERIALES",
+                "Cantidad": "1328"
+            }
+        ];
+
+        let currentData = [...data];
+        let currentView = 'table';
+        let deferredPrompt;
+
+        // Función para renderizar la tabla
+        function renderTable(items) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            if (items.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="4" class="no-results">No se encontraron resultados</td>';
+                tableBody.appendChild(row);
+                document.getElementById('resultsCount').textContent = '0 resultados encontrados';
+                return;
+            }
+            
+            items.forEach(item => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${item["Código Artículo"]}</td>
+                    <td>${item["Artículo"]}</td>
+                    <td>${item["Grupo"]}</td>
+                    <td>${item["Cantidad"]}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            document.getElementById('resultsCount').textContent = `${items.length} resultados encontrados`;
+        }
+
+        // Función para renderizar las tarjetas
+        function renderCards(items) {
+            const cardContainer = document.getElementById('cardView');
+            cardContainer.innerHTML = '';
+            
+            if (items.length === 0) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="no-results">
+                        <p>No se encontraron resultados</p>
+                    </div>
+                `;
+                cardContainer.appendChild(card);
+                document.getElementById('resultsCount').textContent = '0 resultados encontrados';
+                return;
+            }
+            
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-title">${item["Código Artículo"]}</div>
+                    <div class="card-item">
+                        <span class="card-label">Artículo:</span>
+                        <span class="card-value">${item["Artículo"]}</span>
+                    </div>
+                    <div class="card-item">
+                        <span class="card-label">Grupo:</span>
+                        <span class="card-value">${item["Grupo"]}</span>
+                    </div>
+                    <div class="card-item">
+                        <span class="card-label">Cantidad:</span>
+                        <span class="card-value">${item["Cantidad"]}</span>
+                    </div>
+                `;
+                cardContainer.appendChild(card);
+            });
+            
+            document.getElementById('resultsCount').textContent = `${items.length} resultados encontrados`;
+        }
+
+        // Función principal de búsqueda
+        function searchItems() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const groupFilter = document.getElementById('groupFilter').value;
+            
+            let filteredData = [...data];
+            
+            // Aplicar filtro de texto
+            if (searchTerm !== '') {
+                filteredData = filteredData.filter(item => {
+                    return (
+                        item["Código Artículo"].toLowerCase().includes(searchTerm) ||
+                        item["Artículo"].toLowerCase().includes(searchTerm) ||
+                        item["Grupo"].toLowerCase().includes(searchTerm)
+                    );
+                });
+            }
+            
+            // Aplicar filtro de grupo
+            if (groupFilter !== '') {
+                filteredData = filteredData.filter(item => item["Grupo"] === groupFilter);
+            }
+            
+            currentData = filteredData;
+            
+            // Renderizar según la vista actual
+            if (currentView === 'table') {
+                renderTable(currentData);
+            } else {
+                renderCards(currentData);
+            }
+        }
+
+        // Función para filtrar por grupo
+        function filterByGroup() {
+            searchItems();
+        }
+
+        // Función para ordenar la tabla
+        function sortTable() {
+            const sortOrder = document.getElementById('sortOrder').value;
+            let sortedData = [...currentData];
+            
+            switch(sortOrder) {
+                case 'code-asc':
+                    sortedData.sort((a, b) => a["Código Artículo"].localeCompare(b["Código Artículo"]));
+                    break;
+                case 'code-desc':
+                    sortedData.sort((a, b) => b["Código Artículo"].localeCompare(a["Código Artículo"]));
+                    break;
+                case 'article-asc':
+                    sortedData.sort((a, b) => a["Artículo"].localeCompare(b["Artículo"]));
+                    break;
+                case 'article-desc':
+                    sortedData.sort((a, b) => b["Artículo"].localeCompare(a["Artículo"]));
+                    break;
+                case 'quantity-asc':
+                    sortedData.sort((a, b) => parseFloat(a["Cantidad"]) - parseFloat(b["Cantidad"]));
+                    break;
+                case 'quantity-desc':
+                    sortedData.sort((a, b) => parseFloat(b["Cantidad"]) - parseFloat(a["Cantidad"]));
+                    break;
+            }
+            
+            currentData = sortedData;
+            
+            if (currentView === 'table') {
+                renderTable(currentData);
+            } else {
+                renderCards(currentData);
+            }
+        }
+
+        // Función para limpiar la búsqueda
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('groupFilter').value = '';
+            document.getElementById('sortOrder').value = 'code-asc';
+            currentData = [...data];
+            
+            if (currentView === 'table') {
+                renderTable(currentData);
+            } else {
+                renderCards(currentData);
+            }
+        }
+
+        // Función para cambiar entre vistas
+        function switchView(view) {
+            currentView = view;
+            
+            const tableViewBtn = document.getElementById('tableViewBtn');
+            const cardViewBtn = document.getElementById('cardViewBtn');
+            const tableContainer = document.getElementById('tableContainer');
+            const cardView = document.getElementById('cardView');
+            
+            if (view === 'table') {
+                tableViewBtn.classList.add('active');
+                cardViewBtn.classList.remove('active');
+                tableContainer.style.display = 'block';
+                cardView.style.display = 'none';
+                renderTable(currentData);
+            } else {
+                tableViewBtn.classList.remove('active');
+                cardViewBtn.classList.add('active');
+                tableContainer.style.display = 'none';
+                cardView.style.display = 'flex';
+                renderCards(currentData);
+            }
+        }
+
+        // Función para exportar a CSV
+        function exportToCSV() {
+            // Cabeceras
+            const headers = ['Código Artículo', 'Artículo', 'Grupo', 'Cantidad'];
+            
+            // Datos
+            const csvContent = [
+                headers.join(','),
+                ...currentData.map(item => 
+                    [item["Código Artículo"], 
+                     `"${item["Artículo"]}"`, 
+                     `"${item["Grupo"]}"`, 
+                     item["Cantidad"]
+                    ].join(',')
+                )
+            ].join('\n');
+
+            // Crear blob y enlace de descarga
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `almacen_445_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Manejo de instalación PWA
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevenir que Chrome muestre automáticamente el banner de instalación
+            e.preventDefault();
+            // Guardar el evento para usarlo más tarde
+            deferredPrompt = e;
+            // Mostrar nuestro propio prompt de instalación
+            showInstallPromotion();
+        });
+
+        function showInstallPromotion() {
+            const prompt = document.getElementById('installPrompt');
+            prompt.style.display = 'block';
+            
+            document.getElementById('installButton').addEventListener('click', installApp);
+        }
+
+        async function installApp() {
+            if (!deferredPrompt) return;
+            
+            // Mostrar el prompt de instalación
+            deferredPrompt.prompt();
+            
+            // Esperar la elección del usuario
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            // Limpiar el evento después de su uso
+            deferredPrompt = null;
+            
+            // Ocultar el prompt personalizado
+            document.getElementById('installPrompt').style.display = 'none';
+        }
+
+        function closeInstallPrompt() {
+            document.getElementById('installPrompt').style.display = 'none';
+        }
+
+        // Detectar si ya está instalada la app
+        window.addEventListener('appinstalled', () => {
+            console.log('La aplicación ha sido instalada.');
+            document.getElementById('installPrompt').style.display = 'none';
+        });
+
+        // Permitir búsqueda al presionar Enter
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchItems();
+            }
+        });
+
+        // Cargar datos iniciales
+        window.onload = function() {
+            renderTable(data);
+        };
+    </script>
+</body>
+</html>    
